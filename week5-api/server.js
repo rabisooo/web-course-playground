@@ -1,26 +1,28 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
+app.use(cors());
 
 app.use(express.json());
 
-// Logger (Part B - Step 1)
+// Logger
 app.use((req, res, next) => {
   console.log(req.method, req.url);
   next();
 });
 
-// Örnek veri dizisi (Part B - Step 1)
+// Örnek veri dizisi
 let events = [
   { id: 1, title: "Coding Night", date: "2026-11-20" },
   { id: 2, title: "Career Talk", date: "2026-11-27" }
 ];
 
-// Tüm etkinlikleri getir (Part B - Step 2)
+// GET all
 app.get("/api/events", (req, res) => {
   res.json(events);
 });
 
-// ID'ye göre tek etkinlik getir (Part B - Step 3)
+// GET one
 app.get("/api/events/:id", (req, res) => {
   const id = Number(req.params.id);
   const event = events.find(e => e.id === id);
@@ -30,7 +32,7 @@ app.get("/api/events/:id", (req, res) => {
   res.json(event);
 });
 
-// Yeni etkinlik oluştur (Part C - Step 1)
+// POST create
 app.post("/api/events", (req, res) => {
   const { title, date } = req.body;
   if (!title || !date) {
@@ -39,6 +41,27 @@ app.post("/api/events", (req, res) => {
   const event = { id: Date.now(), title, date };
   events.push(event);
   res.status(201).json(event);
+});
+
+// PUT update (Part D - Step 1)
+app.put("/api/events/:id", (req, res) => {
+  const event = events.find(e => e.id === Number(req.params.id));
+  if (!event) {
+    return res.status(404).json({ error: "Event not found" });
+  }
+  event.title = req.body.title ?? event.title;
+  event.date = req.body.date ?? event.date;
+  res.json(event);
+});
+
+// DELETE remove (Part D - Step 2)
+app.delete("/api/events/:id", (req, res) => {
+  const id = Number(req.params.id);
+  if (!events.some(e => e.id === id)) {
+    return res.status(404).json({ error: "Event not found" });
+  }
+  events = events.filter(e => e.id !== id);
+  res.status(204).end();
 });
 
 app.listen(3000, () =>
