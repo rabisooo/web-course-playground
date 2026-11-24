@@ -30,6 +30,17 @@ app.get("/api/events/:id", (req, res) => {
   res.json(event);
 });
 
+// Yeni etkinlik oluştur (Part C - Step 1)
+app.post("/api/events", (req, res) => {
+  const { title, date } = req.body;
+  if (!title || !date) {
+    return res.status(400).json({ error: "title and date are required" });
+  }
+  const event = { id: Date.now(), title, date };
+  events.push(event);
+  res.status(201).json(event);
+});
+
 app.listen(3000, () =>
   console.log("Server on http://localhost:3000")
 );
